@@ -1,0 +1,16 @@
+{
+  "name": "stor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "private": true,
+  "workspace": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "author": "Rachid Ratilal <rachidratilal@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.0.5"
+  }
+}
