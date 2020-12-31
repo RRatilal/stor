@@ -37,6 +37,11 @@ export class createUser1606323674986 implements MigrationInterface {
                     name: 'bio',
                     type: 'varchar',
                 },
+                {
+                    name: 'resetToken',
+                    type: 'varchar',
+                    isNullable: true,
+                },
             ]
         }))
     }

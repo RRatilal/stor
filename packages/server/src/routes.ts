@@ -5,6 +5,7 @@ import ClassroomsController from './controllers/ClassroomsController';
 
 const routes = Router();
 
+routes.post('/login', UsersController.index)
 routes.post('/users', UsersController.create);
 
 routes.get('/classroom/:user_id', ClassroomsController.show)

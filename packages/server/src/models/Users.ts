@@ -24,6 +24,9 @@ export default class User {
 
     @Column()
     bio!: string;
+    
+    @Column({ nullable: true })
+    resetToken!: string;
 
     @OneToMany(() => Classroom, classroom => classroom.user, {
         cascade: ['insert', 'update']
