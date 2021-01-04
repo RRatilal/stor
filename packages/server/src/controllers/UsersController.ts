@@ -164,6 +164,27 @@ export default {
         }
     },
 
+    async getUpdatedData(req: Request, res: Response) {
+        const { user_id } = req.params;
+
+        const usersRepository = getRepository(User)
+        
+        try {
+            const user = await usersRepository.findOne({
+                where: {
+                    user_id
+                },
+                select: ["id", "name", "surname", "email", "whatsapp", "bio"]
+            }).then(response => {
+                return response
+            })
+    
+            return res.status(400).json(user)
+        } catch (error) {
+            return res.status(400).json({ error: "Erro ao carregar dados" })
+        }
+    },
+
     async resetPassword(req: Request, res: Response) {
         const { email, password } = req.body;
         const { token } = req.params;

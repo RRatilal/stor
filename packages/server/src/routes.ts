@@ -2,13 +2,28 @@ import { Router } from 'express';
 
 import UsersController from './controllers/UsersController';
 import ClassroomsController from './controllers/ClassroomsController';
+import RefreshToken from './controllers/RefreshToken';
+
+import middleware from './middlewares/auth';
+import ConnectionsController from './controllers/ConnectionsController';
 
 const routes = Router();
 
-routes.post('/login', UsersController.index)
-routes.post('/users', UsersController.create);
+routes.post('/login', UsersController.index);
+routes.post('/logup', UsersController.create);
+routes.post('/forgot-password/', UsersController.forgotPassword);
+routes.post('/reset-password/', UsersController.resetPassword);
+routes.post('/refreshtoken', RefreshToken.create);
+
+routes.use(middleware);
+
+routes.get('/update-user/:user_id', UsersController.getUpdatedData)
+routes.put('/update-user/:user_id', UsersController.update)
 
 routes.get('/classroom/:user_id', ClassroomsController.show)
 routes.post('/classroom/:user_id', ClassroomsController.create)
+
+routes.get('/connections', ConnectionsController.index)
+routes.post('/connections', ConnectionsController.create)
 
 export default routes;
