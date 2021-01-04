@@ -15,12 +15,12 @@ routes.post('/forgot-password/', UsersController.forgotPassword);
 routes.post('/reset-password/', UsersController.resetPassword);
 routes.post('/refreshtoken', RefreshToken.create);
 
-routes.use(middleware);
+// routes.use(middleware);
 
-routes.get('/update-user/:user_id', UsersController.getUpdatedData)
-routes.put('/update-user/:user_id', UsersController.update)
+routes.get('/update-user/:userId', UsersController.getUpdatedData)
+routes.put('/update-user/:userId', UsersController.update)
 
-routes.get('/classroom/:user_id', ClassroomsController.show)
+routes.get('/classroom', ClassroomsController.show)
 routes.post('/classroom/:user_id', ClassroomsController.create)
 
 routes.get('/connections', ConnectionsController.index)

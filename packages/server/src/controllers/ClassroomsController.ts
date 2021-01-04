@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { getRepository } from "typeorm";
+import { join } from "path";
+import { Brackets, createQueryBuilder, getRepository } from "typeorm";
 import Classroom from "../models/Classroom";
 import User from "../models/Users";
 import convertHourToMinutes from "../utils/convertHoursToMinutes";
@@ -12,27 +13,43 @@ interface ScheduleItem {
 
 export default {
     async show(req:Request, res: Response) {
-        const {user_id} = req.params;
+        const filters = req.query;
 
         const classroomsRepository = getRepository(Classroom);
 
-        const classroom = await classroomsRepository.find({
-            where: {
-                user: user_id
-            }
-        });
+        const subject = filters.subject as string;
+        const week_day = filters.week_day as string;
+        const time = filters.time as string;
+
+        if (!filters.week_day || !filters.subject || !filters.time) {
+            return res.status(400).json({
+                error: 'Missing filters to serch classes'
+            })
+        }
+
+        const timeImMinites = convertHourToMinutes(time);
+
+
+        const classroom = await classroomsRepository.createQueryBuilder("classroom")
+            .leftJoinAndSelect("classroom.user", "user")
+            .leftJoinAndSelect("classroom.schedules", "schedule")
+            .where("classroom.subject = :subject", { subject: subject })
+            .andWhere("schedule.week_day = :week_day", { week_day: Number(week_day) })
+            .andWhere("schedule.from <= :from", { from: timeImMinites })
+            .andWhere("schedule.to > :to", { to: timeImMinites })
+            .getMany()
 
         return res.json(classroom)
     },
 
     async create(req:Request, res: Response) {
-        const {user_id} = req.params;
+        const {userId} = req.params;
         const {subject, cost, schedules} = req.body;
 
         const usersRepository = getRepository(User);
         const classroomsRepository = getRepository(Classroom);
 
-        const user = await usersRepository.findOneOrFail(user_id)
+        const user = await usersRepository.findOneOrFail(userId)
         .then(user => {
             return user
         })
