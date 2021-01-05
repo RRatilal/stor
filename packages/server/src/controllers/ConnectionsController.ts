@@ -9,8 +9,6 @@ export default {
 
     const total = await connectionsRepository.count();
 
-        console.log("total connections", total);
-
         return res.json({total})
     },
 
