@@ -7,7 +7,11 @@ import RefreshToken from './controllers/RefreshToken';
 import middleware from './middlewares/auth';
 import ConnectionsController from './controllers/ConnectionsController';
 
+import uploadConfig from './config/multer'
+import multer from 'multer';
+
 const routes = Router();
+const upload = multer(uploadConfig);
 
 routes.post('/login', UsersController.index);
 routes.post('/logup', UsersController.create);
@@ -18,7 +22,7 @@ routes.post('/refreshtoken', RefreshToken.create);
 // routes.use(middleware);
 
 routes.get('/update-user/:userId', UsersController.getUpdatedData)
-routes.put('/update-user/:userId', UsersController.update)
+routes.put('/update-user/:userId', upload.single('image'), UsersController.update)
 
 routes.get('/classroom', ClassroomsController.show)
 routes.post('/classroom/:user_id', ClassroomsController.create)

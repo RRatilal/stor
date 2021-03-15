@@ -4,6 +4,7 @@ import bcrypt from  'bcrypt';
 import { secret } from '../config/auth.json';
 import JWT from 'jsonwebtoken';
 import User from "../models/Users";
+import Image from '../models/Images';
 import hashPassword from "../utils/hashPassword";
 import generateAuthToken from "../config/generateAuthToken";
 import generateRefreshToken from "../config/generateRefreshToken";
@@ -91,9 +92,14 @@ export default {
     async update(req: Request, res: Response) {
         const { userId } = req.params;
         const { name, surname, email, whatsapp, bio } = req.body;
+        const imageFile = req.file;
+
+        const imageName = imageFile.filename
+        const url = `http://localhost:3333/uploads/${imageFile.filename}`;
 
         try {
             const usersRepository = getRepository(User);
+            const imageRepository = getRepository(Image)
 
         const insertedUser = await usersRepository.findOne({
             where: {
@@ -101,8 +107,32 @@ export default {
             }
         });
 
+        const insertedImage = await imageRepository.findOne({
+            where: {
+                name: imageName
+            }
+        });
+
         if (!insertedUser) {
             return res.status(400).json({ error: 'Esse usuário não existe' })
+        }
+
+        let image;
+
+        if (!insertedImage) {
+            image = imageRepository.create({
+                name: imageName,
+                url,
+                user: insertedUser
+            });
+
+            await imageRepository.save(image)
+        } else {
+            image = imageRepository.update(insertedUser.id, {
+                name: imageName,
+                url,
+                user: insertedUser
+            })
         }
 
         const user = await usersRepository.update(insertedUser.id, {
@@ -110,11 +140,12 @@ export default {
             surname,
             email,
             whatsapp,
-            bio
+            bio,
         });
 
-        return res.status(201).json(user);
+        return res.status(200);
         } catch (error) {
+            console.log(error)
             return res.status(400).json({ error: "Erro ao actualizar dados" })
         }
     },
@@ -170,14 +201,10 @@ export default {
         const usersRepository = getRepository(User)
         
         try {
-            const user = await usersRepository.findOne({
-                where: {
-                    id: userId
-                },
-                select: ["id", "name", "surname", "email", "whatsapp", "bio"]
-            }).then(response => {
-                return response
-            })
+            const user = await usersRepository.createQueryBuilder("users")
+                .leftJoinAndSelect("users.image", "image")
+                .where("users.id = :id", { id: userId })
+                .getMany();
     
             return res.status(200).json(user)
         } catch (error) {
